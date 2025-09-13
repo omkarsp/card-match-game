@@ -11,17 +11,17 @@ public enum Platform
 public class PlatformManager : MonoBehaviour
 {
     [Header("Platform Detection")]
-    [SerializeField] private bool autoDetectPlatform = true;
-    [SerializeField] private Platform forcePlatform = Platform.Unknown;
+    [SerializeField] bool autoDetectPlatform = true;
+    [SerializeField] Platform forcePlatform = Platform.Unknown;
 
     [Header("Input Settings")]
-    [SerializeField] private bool enableTouchInput = true;
-    [SerializeField] private bool enableMouseInput = true;
-    [SerializeField] private float touchSensitivity = 1f;
+    [SerializeField] bool enableTouchInput = true;
+    [SerializeField] bool enableMouseInput = true;
+    [SerializeField] float touchSensitivity = 1f;
 
     [Header("Platform Specific Settings")]
-    [SerializeField] private bool enableMobileOptimizations = true;
-    [SerializeField] private bool enableDesktopFeatures = true;
+    [SerializeField] bool enableMobileOptimizations = true;
+    [SerializeField] bool enableDesktopFeatures = true;
 
     // Current platform
     public Platform CurrentPlatform { get; private set; }
@@ -36,7 +36,7 @@ public class PlatformManager : MonoBehaviour
     // Events
     public System.Action<Platform> OnPlatformChanged;
 
-    private void Awake()
+    void Awake()
     {
         // Singleton setup
         if (Instance == null)
@@ -51,12 +51,12 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
         ApplyPlatformOptimizations();
     }
 
-    private void InitializePlatform()
+    void InitializePlatform()
     {
         // Detect current platform
         if (autoDetectPlatform && forcePlatform == Platform.Unknown)
@@ -79,7 +79,7 @@ public class PlatformManager : MonoBehaviour
         Debug.Log($"Touch supported: {IsTouchSupported}, Mouse supported: {IsMouseSupported}");
     }
 
-    private void DetectPlatform()
+    void DetectPlatform()
     {
         RuntimePlatform runtimePlatform = Application.platform;
 
@@ -110,7 +110,7 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void SetupInputCapabilities()
+    void SetupInputCapabilities()
     {
         // Determine input capabilities based on platform
         switch (CurrentPlatform)
@@ -137,7 +137,7 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void ApplyPlatformOptimizations()
+    void ApplyPlatformOptimizations()
     {
         PerformanceOptimizer optimizer = PerformanceOptimizer.Instance;
 
@@ -163,7 +163,7 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void ApplyMobileOptimizations(PerformanceOptimizer optimizer)
+    void ApplyMobileOptimizations(PerformanceOptimizer optimizer)
     {
         // Mobile-specific optimizations
         if (optimizer != null)
@@ -184,7 +184,7 @@ public class PlatformManager : MonoBehaviour
         Debug.Log("Mobile optimizations applied");
     }
 
-    private void ApplyDesktopOptimizations(PerformanceOptimizer optimizer)
+    void ApplyDesktopOptimizations(PerformanceOptimizer optimizer)
     {
         // Desktop-specific optimizations
         if (optimizer != null)
@@ -202,7 +202,7 @@ public class PlatformManager : MonoBehaviour
         Debug.Log("Desktop optimizations applied");
     }
 
-    private void ApplyWebGLOptimizations(PerformanceOptimizer optimizer)
+    void ApplyWebGLOptimizations(PerformanceOptimizer optimizer)
     {
         // WebGL-specific optimizations
         if (optimizer != null)
@@ -434,7 +434,7 @@ public class PlatformManager : MonoBehaviour
 
     #endregion
 
-    private void OnValidate()
+    void OnValidate()
     {
         // Clamp values in inspector
         touchSensitivity = Mathf.Clamp(touchSensitivity, 0.1f, 3f);
@@ -442,7 +442,7 @@ public class PlatformManager : MonoBehaviour
 
     #region Unity Events
 
-    private void OnApplicationPause(bool pauseStatus)
+    void OnApplicationPause(bool pauseStatus)
     {
         if (CurrentPlatform == Platform.Mobile)
         {
@@ -450,7 +450,7 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void OnApplicationFocus(bool hasFocus)
+    void OnApplicationFocus(bool hasFocus)
     {
         Debug.Log($"Application focus: {hasFocus}");
     }

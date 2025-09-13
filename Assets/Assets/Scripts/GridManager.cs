@@ -5,24 +5,24 @@ using UnityEngine.UI;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
-    [SerializeField] private RectTransform gridContainer;
-    [SerializeField] private Card cardPrefab;
-    [SerializeField] private float gridPadding = 20f;
-    [SerializeField] private float cardSpacing = 10f;
-    [SerializeField] private float minCardSize = 60f;
-    [SerializeField] private float maxCardSize = 150f;
+    [SerializeField] RectTransform gridContainer;
+    [SerializeField] Card cardPrefab;
+    [SerializeField] float gridPadding = 20f;
+    [SerializeField] float cardSpacing = 10f;
+    [SerializeField] float minCardSize = 60f;
+    [SerializeField] float maxCardSize = 150f;
 
     [Header("Card Sprites")]
-    [SerializeField] private Sprite[] cardFrontSprites;
-    [SerializeField] private Sprite cardBackSprite;
+    [SerializeField] Sprite[] cardFrontSprites;
+    [SerializeField] Sprite cardBackSprite;
 
     public int Rows { get; private set; }
     public int Columns { get; private set; }
     public int TotalCards { get; private set; }
     public int TotalPairs { get; private set; }
 
-    private List<Card> allCards = new List<Card>();
-    private Dictionary<int, List<Card>> cardPairs = new Dictionary<int, List<Card>>();
+    List<Card> allCards = new List<Card>();
+    Dictionary<int, List<Card>> cardPairs = new Dictionary<int, List<Card>>();
     
     public System.Action<Card> OnCardClicked;
 
@@ -65,7 +65,7 @@ public class GridManager : MonoBehaviour
         Debug.Log($"Generated {rows}x{columns} grid with {TotalCards} cards ({TotalPairs} pairs)");
     }
 
-    private void ClearGrid()
+    void ClearGrid()
     {
         foreach (Card card in allCards)
         {
@@ -79,7 +79,7 @@ public class GridManager : MonoBehaviour
         cardPairs.Clear();
     }
 
-    private Vector2 CalculateCardSize(int rows, int columns)
+    Vector2 CalculateCardSize(int rows, int columns)
     {
         if (gridContainer == null)
         {
@@ -105,7 +105,7 @@ public class GridManager : MonoBehaviour
         return new Vector2(cardSize, cardSize);
     }
 
-    private List<int> GenerateCardIds()
+    List<int> GenerateCardIds()
     {
         List<int> cardIds = new List<int>();
         
@@ -120,7 +120,7 @@ public class GridManager : MonoBehaviour
         return cardIds;
     }
 
-    private void CreateCards(List<int> cardIds, Vector2 cardSize)
+    void CreateCards(List<int> cardIds, Vector2 cardSize)
     {
         if (cardPrefab == null)
         {
@@ -173,7 +173,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private Sprite GetCardSprite(int cardId)
+    Sprite GetCardSprite(int cardId)
     {
         if (cardFrontSprites == null || cardFrontSprites.Length == 0)
         {
@@ -186,12 +186,12 @@ public class GridManager : MonoBehaviour
         return cardFrontSprites[spriteIndex];
     }
 
-    private void HandleCardClick(Card clickedCard)
+     void HandleCardClick(Card clickedCard)
     {
         OnCardClicked?.Invoke(clickedCard);
     }
 
-    private void ShuffleList<T>(List<T> list)
+    void ShuffleList<T>(List<T> list)
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -266,7 +266,7 @@ public class GridManager : MonoBehaviour
         return new List<Card>(allCards);
     }
 
-    private void OnValidate()
+    void OnValidate()
     {
         // Ensure minimum values in inspector
         if (gridPadding < 0) gridPadding = 0;

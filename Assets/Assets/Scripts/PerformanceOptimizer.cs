@@ -5,32 +5,32 @@ using UnityEngine.Profiling;
 public class PerformanceOptimizer : MonoBehaviour
 {
     [Header("Performance Settings")]
-    [SerializeField] private bool enableOptimizations = true;
-    [SerializeField] private bool enablePerformanceMonitoring = false;
-    [SerializeField] private float targetFrameRate = 60f;
-    [SerializeField] private int maxCardPoolSize = 100;
+    [SerializeField] bool enableOptimizations = true;
+    [SerializeField] bool enablePerformanceMonitoring = false;
+    [SerializeField] float targetFrameRate = 60f;
+    [SerializeField] int maxCardPoolSize = 100;
 
     [Header("Memory Management")]
-    [SerializeField] private bool enableAutomaticGC = false;
-    [SerializeField] private float gcInterval = 30f;
+    [SerializeField] bool enableAutomaticGC = false;
+    [SerializeField] float gcInterval = 30f;
 
     [Header("Visual Optimizations")]
-    [SerializeField] private bool enableObjectCulling = true;
-    [SerializeField] private bool enableLODSystem = false;
-    [SerializeField] private float cullDistance = 50f;
+    [SerializeField] bool enableObjectCulling = true;
+    [SerializeField] bool enableLODSystem = false;
+    [SerializeField] float cullDistance = 50f;
 
     // Performance monitoring
-    private float lastFrameTime;
-    private float averageFrameTime;
-    private int frameCount;
-    private float frameTimeAccumulator;
+    float lastFrameTime;
+    float averageFrameTime;
+    int frameCount;
+    float frameTimeAccumulator;
 
     // Object pooling
-    private Dictionary<string, Queue<GameObject>> objectPools;
-    private Dictionary<string, GameObject> poolPrefabs;
+    Dictionary<string, Queue<GameObject>> objectPools;
+    Dictionary<string, GameObject> poolPrefabs;
 
     // Memory management
-    private float lastGCTime;
+    float lastGCTime;
 
     // Singleton
     public static PerformanceOptimizer Instance { get; private set; }
@@ -40,7 +40,7 @@ public class PerformanceOptimizer : MonoBehaviour
     public float AverageFrameTime => averageFrameTime;
     public long MemoryUsage { get; private set; }
 
-    private void Awake()
+    void Awake()
     {
         // Singleton setup
         if (Instance == null)
@@ -55,7 +55,7 @@ public class PerformanceOptimizer : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
         // Set target frame rate
         if (enableOptimizations)
@@ -65,7 +65,7 @@ public class PerformanceOptimizer : MonoBehaviour
         }
     }
 
-    private void Update()
+    void Update()
     {
         if (enablePerformanceMonitoring)
         {
@@ -78,7 +78,7 @@ public class PerformanceOptimizer : MonoBehaviour
         }
     }
 
-    private void InitializeOptimizations()
+    void InitializeOptimizations()
     {
         // Initialize object pooling
         objectPools = new Dictionary<string, Queue<GameObject>>();
@@ -213,7 +213,7 @@ public class PerformanceOptimizer : MonoBehaviour
 
     #region Performance Monitoring
 
-    private void UpdatePerformanceMetrics()
+    void UpdatePerformanceMetrics()
     {
         // Calculate FPS
         lastFrameTime = Time.unscaledDeltaTime;
@@ -252,7 +252,7 @@ public class PerformanceOptimizer : MonoBehaviour
 
     #region Memory Management
 
-    private void HandleAutomaticGC()
+    void HandleAutomaticGC()
     {
         if (Time.time - lastGCTime >= gcInterval)
         {
@@ -272,7 +272,7 @@ public class PerformanceOptimizer : MonoBehaviour
 
     #region Visual Optimizations
 
-    private void SetupObjectCulling()
+    void SetupObjectCulling()
     {
         // Enable occlusion culling if available
         Camera mainCamera = Camera.main;
@@ -359,7 +359,7 @@ public class PerformanceOptimizer : MonoBehaviour
 
     #region Unity Events
 
-    private void OnApplicationPause(bool pauseStatus)
+    void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus && enableOptimizations)
         {
@@ -368,7 +368,7 @@ public class PerformanceOptimizer : MonoBehaviour
         }
     }
 
-    private void OnApplicationFocus(bool hasFocus)
+    void OnApplicationFocus(bool hasFocus)
     {
         if (!hasFocus && enableOptimizations)
         {
@@ -382,12 +382,12 @@ public class PerformanceOptimizer : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         ClearAllPools();
     }
 
-    private void OnValidate()
+    void OnValidate()
     {
         // Clamp values in inspector
         if (targetFrameRate < 15f) targetFrameRate = 15f;

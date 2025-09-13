@@ -29,16 +29,16 @@ public class CardSaveData
 
 public class SaveLoadManager : MonoBehaviour
 {
-    private const string SAVE_KEY = "MemoryCardGame_SaveData";
-    private const string HAS_SAVE_KEY = "MemoryCardGame_HasSave";
+    const string SAVE_KEY = "MemoryCardGame_SaveData";
+    const string HAS_SAVE_KEY = "MemoryCardGame_HasSave";
 
     [Header("Save Settings")]
-    [SerializeField] private bool autoSave = true;
-    [SerializeField] private bool debugMode = false;
+    [SerializeField] bool autoSave = true;
+    [SerializeField] bool debugMode = false;
 
-    private GameSaveData currentSaveData;
+    GameSaveData currentSaveData;
 
-    private void Awake()
+    void Awake()
     {
         // Ensure we have a save data instance
         if (currentSaveData == null)
@@ -277,7 +277,7 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (autoSave)
         {

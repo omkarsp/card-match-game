@@ -1,36 +1,37 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     [Header("Audio Sources")]
-    [SerializeField] private AudioSource musicSource;
-    [SerializeField] private AudioSource effectsSource;
-    [SerializeField] private int audioSourcePoolSize = 5;
+    [SerializeField] AudioSource musicSource;
+    [SerializeField] AudioSource effectsSource;
+    [SerializeField] int audioSourcePoolSize = 5;
 
     [Header("Sound Effects - Required")]
-    [SerializeField] private AudioClip cardFlipSound;
-    [SerializeField] private AudioClip matchSound;
-    [SerializeField] private AudioClip mismatchSound;
-    [SerializeField] private AudioClip gameOverSound;
+    [SerializeField] AudioClip cardFlipSound;
+    [SerializeField] AudioClip matchSound;
+    [SerializeField] AudioClip mismatchSound;
+    [SerializeField] AudioClip gameOverSound;
 
     [Header("Volume Settings")]
-    [SerializeField] private float masterVolume = 1f;
-    [SerializeField] private float effectsVolume = 0.8f;
-    [SerializeField] private float musicVolume = 0.6f;
+    [SerializeField] float masterVolume = 1f;
+    [SerializeField] float effectsVolume = 0.8f;
+    [SerializeField] float musicVolume = 0.6f;
 
     [Header("Audio Settings")]
-    [SerializeField] private bool effectsEnabled = true;
-    [SerializeField] private bool musicEnabled = true;
+    [SerializeField] bool effectsEnabled = true;
+    [SerializeField] bool musicEnabled = true;
 
     // Audio Source Pool for overlapping sounds
-    private Queue<AudioSource> audioSourcePool;
-    private List<AudioSource> activeAudioSources;
+    Queue<AudioSource> audioSourcePool;
+    List<AudioSource> activeAudioSources;
 
     // Singleton pattern
     public static AudioManager Instance { get; private set; }
 
-    private void Awake()
+    void Awake()
     {
         // Singleton setup
         if (Instance == null)
@@ -45,13 +46,13 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
         // Load audio settings from UIManager if available
         LoadAudioSettings();
     }
 
-    private void InitializeAudioSystem()
+    void InitializeAudioSystem()
     {
         // Initialize audio source pool
         audioSourcePool = new Queue<AudioSource>();
@@ -93,7 +94,7 @@ public class AudioManager : MonoBehaviour
         Debug.Log("Audio system initialized with pooled audio sources");
     }
 
-    private void LoadAudioSettings()
+    void LoadAudioSettings()
     {
         // First load from PlayerPrefs (fallback values)
         effectsEnabled = PlayerPrefs.GetInt("EffectsEnabled", 1) == 1;
@@ -144,7 +145,7 @@ public class AudioManager : MonoBehaviour
 
     #region Sound Effect System
 
-    private void PlaySoundEffect(AudioClip clip)
+    void PlaySoundEffect(AudioClip clip)
     {
         if (!effectsEnabled || clip == null)
             return;
@@ -169,7 +170,7 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private AudioSource GetPooledAudioSource()
+    AudioSource GetPooledAudioSource()
     {
         if (audioSourcePool.Count > 0)
         {
@@ -181,7 +182,7 @@ public class AudioManager : MonoBehaviour
         return null;
     }
 
-    private System.Collections.IEnumerator ReturnAudioSourceToPool(AudioSource source, float delay)
+    IEnumerator ReturnAudioSourceToPool(AudioSource source, float delay)
     {
         yield return new WaitForSeconds(delay);
         
@@ -306,7 +307,7 @@ public class AudioManager : MonoBehaviour
 
     #region Validation and Debugging
 
-    private void OnValidate()
+    void OnValidate()
     {
         // Clamp values in inspector
         masterVolume = Mathf.Clamp01(masterVolume);
@@ -317,14 +318,14 @@ public class AudioManager : MonoBehaviour
             audioSourcePoolSize = 1;
     }
 
-    public void TestAllSounds()
+    void TestAllSounds()
     {
         Debug.Log("Testing all sound effects...");
         
         StartCoroutine(TestSoundsSequence());
     }
 
-    private System.Collections.IEnumerator TestSoundsSequence()
+    IEnumerator TestSoundsSequence()
     {
         Debug.Log("Playing card flip sound");
         PlayCardFlip();
@@ -369,7 +370,7 @@ public class AudioManager : MonoBehaviour
 
     #endregion
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         // Clean up any running coroutines
         StopAllCoroutines();

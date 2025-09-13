@@ -12,20 +12,20 @@ public enum GameState
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    [SerializeField] private GameState currentGameState;
-    [SerializeField] private MemoryCardGameManager memoryCardGameManager;
+    [SerializeField] GameState currentGameState;
+    [SerializeField] MemoryCardGameManager memoryCardGameManager;
 
     public GameState CurrentGameState
     {
-        get { return currentGameState; }
-        set { currentGameState = value; }
+        get => currentGameState;
+        set => currentGameState = value;
     }
 
     public MemoryCardGameManager MemoryGameManager => memoryCardGameManager;
 
-    private void Awake()
+    void Awake()
     {
-        if (Instance == null)
+        if (!Instance)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
 
     public void StartGameWithDifficulty(Difficulty difficulty)
     {
-        if (memoryCardGameManager != null)
+        if (memoryCardGameManager)
         {
             var gridSize = GetGridSizeForDifficulty(difficulty);
             memoryCardGameManager.StartNewGame(gridSize.rows, gridSize.columns);
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame() => ChangeGameState(GameState.Gameplay);
 
-    private (int rows, int columns) GetGridSizeForDifficulty(Difficulty difficulty)
+    (int rows, int columns) GetGridSizeForDifficulty(Difficulty difficulty)
     {
         return difficulty switch
         {
@@ -71,19 +71,16 @@ public class GameManager : MonoBehaviour
         };
     }
 
-    private void Start()
+    void Start()
     {
         // Find MemoryCardGameManager if not assigned
-        if (memoryCardGameManager == null)
-        {
-            memoryCardGameManager = FindObjectOfType<MemoryCardGameManager>();
-        }
+        if (!memoryCardGameManager) memoryCardGameManager = FindObjectOfType<MemoryCardGameManager>();
 
         // Start with the main menu
         ChangeGameState(GameState.MainMenu);
     }
 
-    private void ChangeGameState(GameState newState)
+    void ChangeGameState(GameState newState)
     {
         currentGameState = newState;
 

@@ -14,28 +14,28 @@ public enum CardState
 public class Card : MonoBehaviour
 {
     [Header("Card Components")]
-    [SerializeField] private Button cardButton;
-    [SerializeField] private Image cardBack;
-    [SerializeField] private Image cardFront;
-    [SerializeField] private CanvasGroup cardGroup;
+    [SerializeField] Button cardButton;
+    [SerializeField] Image cardBack;
+    [SerializeField] Image cardFront;
+    [SerializeField] CanvasGroup cardGroup;
 
     [Header("Animation Settings")]
-    [SerializeField] private float flipDuration = 0.3f;
-    [SerializeField] private AnimationCurve flipCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] float flipDuration = 0.3f;
+    [SerializeField] AnimationCurve flipCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Card Data")]
-    [SerializeField] private int cardId;
-    [SerializeField] private Sprite cardFrontSprite;
+    [SerializeField] int cardId;
+    [SerializeField] Sprite cardFrontSprite;
 
     public int CardId => cardId;
     public CardState CurrentState { get; private set; } = CardState.FaceDown;
     
     public Action<Card> OnCardClicked;
     
-    private bool isInteractable = true;
-    private Coroutine flipCoroutine;
+    bool isInteractable = true;
+    Coroutine flipCoroutine;
 
-    private void Awake()
+    void Awake()
     {
         if (cardButton == null) cardButton = GetComponent<Button>();
         if (cardGroup == null) cardGroup = GetComponent<CanvasGroup>();
@@ -55,7 +55,7 @@ public class Card : MonoBehaviour
         SetInteractable(true);
     }
 
-    private void OnCardButtonClicked()
+    void OnCardButtonClicked()
     {
         if (!isInteractable || CurrentState != CardState.FaceDown) return;
         
@@ -66,10 +66,7 @@ public class Card : MonoBehaviour
     {
         if (CurrentState == CardState.FaceUp || CurrentState == CardState.Matched) return;
         
-        if (flipCoroutine != null)
-        {
-            StopCoroutine(flipCoroutine);
-        }
+        if (flipCoroutine != null) StopCoroutine(flipCoroutine);
 
         if (immediate)
         {
@@ -86,10 +83,7 @@ public class Card : MonoBehaviour
     {
         if (CurrentState == CardState.FaceDown || CurrentState == CardState.Matched) return;
         
-        if (flipCoroutine != null)
-        {
-            StopCoroutine(flipCoroutine);
-        }
+        if (flipCoroutine != null) StopCoroutine(flipCoroutine);
 
         if (immediate)
         {
@@ -122,7 +116,7 @@ public class Card : MonoBehaviour
         StartCoroutine(MatchedEffectCoroutine());
     }
 
-    private IEnumerator FlipCardCoroutine(bool faceUp)
+    IEnumerator FlipCardCoroutine(bool faceUp)
     {
         CurrentState = CardState.Flipping;
         SetInteractable(false);
@@ -161,15 +155,12 @@ public class Card : MonoBehaviour
         CurrentState = faceUp ? CardState.FaceUp : CardState.FaceDown;
         
         // Only make interactable if face down and not matched
-        if (CurrentState == CardState.FaceDown)
-        {
-            SetInteractable(true);
-        }
+        if (CurrentState == CardState.FaceDown) SetInteractable(true);
         
         flipCoroutine = null;
     }
 
-    private IEnumerator MatchedEffectCoroutine()
+    IEnumerator MatchedEffectCoroutine()
     {
         // Simple pulse effect for matched cards
         Vector3 originalScale = transform.localScale;
@@ -200,7 +191,7 @@ public class Card : MonoBehaviour
         transform.localScale = originalScale;
     }
 
-    private void SetCardVisual(bool showFront)
+    void SetCardVisual(bool showFront)
     {
         cardFront.gameObject.SetActive(showFront);
         cardBack.gameObject.SetActive(!showFront);
@@ -211,10 +202,7 @@ public class Card : MonoBehaviour
         isInteractable = interactable;
         cardButton.interactable = interactable;
         
-        if (cardGroup != null)
-        {
-            cardGroup.alpha = interactable ? 1f : 0.8f;
-        }
+        if (cardGroup) cardGroup.alpha = interactable ? 1f : 0.8f;
     }
 
     public void ResetCard()
@@ -231,11 +219,8 @@ public class Card : MonoBehaviour
         SetInteractable(true);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
-        if (flipCoroutine != null)
-        {
-            StopCoroutine(flipCoroutine);
-        }
+        if (flipCoroutine != null) StopCoroutine(flipCoroutine);
     }
 }

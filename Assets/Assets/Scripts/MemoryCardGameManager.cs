@@ -5,23 +5,23 @@ using UnityEngine;
 public class MemoryCardGameManager : MonoBehaviour
 {
     [Header("Game Components")]
-    [SerializeField] private GridManager gridManager;
-    [SerializeField] private AudioManager audioManager;
-    [SerializeField] private SaveLoadManager saveLoadManager;
-    [SerializeField] private ScoreManager scoreManager;
+    [SerializeField] GridManager gridManager;
+    [SerializeField] AudioManager audioManager;
+    [SerializeField] SaveLoadManager saveLoadManager;
+    [SerializeField] ScoreManager scoreManager;
 
     [Header("Game Settings")]
-    [SerializeField] private float mismatchDelay = 1.5f;
-    [SerializeField] private int maxFlippedCards = 2;
-    [SerializeField] private bool allowContinuousFlipping = true;
+    [SerializeField] float mismatchDelay = 1.5f;
+    [SerializeField] int maxFlippedCards = 2;
+    [SerializeField] bool allowContinuousFlipping = true;
     
     [Header("Preview Settings")]
-    [SerializeField] private float previewDuration = 2f;
-    [SerializeField] private bool enablePreview = true;
+    [SerializeField] float previewDuration = 2f;
+    [SerializeField] bool enablePreview = true;
 
     [Header("Current Grid Settings")]
-    [SerializeField] private int currentRows = 3;
-    [SerializeField] private int currentColumns = 4;
+    [SerializeField] int currentRows = 3;
+    [SerializeField] int currentColumns = 4;
 
     // Game State
     public int CurrentScore { get; private set; }
@@ -30,14 +30,14 @@ public class MemoryCardGameManager : MonoBehaviour
     public bool IsGameActive { get; private set; }
 
     // Card Management
-    private List<Card> flippedCards = new List<Card>();
-    private Queue<Card> cardClickQueue = new Queue<Card>();
-    private bool isProcessingMatch = false;
-    private Coroutine matchProcessingCoroutine;
+    List<Card> flippedCards = new List<Card>();
+    Queue<Card> cardClickQueue = new Queue<Card>();
+    bool isProcessingMatch = false;
+    Coroutine matchProcessingCoroutine;
     
     // Preview phase
-    private bool isInPreviewPhase = false;
-    private Coroutine previewCoroutine;
+    bool isInPreviewPhase = false;
+    Coroutine previewCoroutine;
 
     // Events
     public System.Action<int> OnScoreChanged;
@@ -48,7 +48,7 @@ public class MemoryCardGameManager : MonoBehaviour
     public System.Action OnPreviewStarted;
     public System.Action OnPreviewEnded;
 
-    private void Awake()
+    void Awake()
     {
         if (gridManager == null) gridManager = GetComponent<GridManager>();
         if (audioManager == null) audioManager = FindObjectOfType<AudioManager>();
@@ -56,7 +56,7 @@ public class MemoryCardGameManager : MonoBehaviour
         if (scoreManager == null) scoreManager = GetComponent<ScoreManager>();
     }
 
-    private void Start()
+    void Start()
     {
         InitializeGame();
     }
@@ -121,7 +121,7 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log($"New game started: {gridManager.TotalPairs} pairs to match");
     }
 
-    private void StartPreviewPhase()
+    void StartPreviewPhase()
     {
         Debug.Log("Starting preview phase - revealing all cards");
         
@@ -149,7 +149,7 @@ public class MemoryCardGameManager : MonoBehaviour
         previewCoroutine = StartCoroutine(PreviewPhaseCoroutine());
     }
 
-    private IEnumerator PreviewPhaseCoroutine()
+    IEnumerator PreviewPhaseCoroutine()
     {
         // Wait for preview duration
         yield return new WaitForSeconds(previewDuration);
@@ -157,7 +157,7 @@ public class MemoryCardGameManager : MonoBehaviour
         EndPreviewPhase();
     }
 
-    private void EndPreviewPhase()
+    void EndPreviewPhase()
     {
         Debug.Log("Preview phase ended - hiding all cards");
         
@@ -182,7 +182,7 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log("Game is now active - players can start matching!");
     }
 
-    private void HandleCardClick(Card clickedCard)
+    void HandleCardClick(Card clickedCard)
     {
         if (!IsGameActive || clickedCard == null || isInPreviewPhase)
             return;
@@ -203,7 +203,7 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private void ProcessCardQueue()
+    void ProcessCardQueue()
     {
         // Process cards from queue if we're not at the limit
         while (cardClickQueue.Count > 0 && flippedCards.Count < maxFlippedCards)
@@ -218,14 +218,14 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private bool CanFlipCard(Card card)
+    bool CanFlipCard(Card card)
     {
         return card != null && 
                card.CurrentState == CardState.FaceDown && 
                !flippedCards.Contains(card);
     }
 
-    private void ProcessCardClick(Card clickedCard)
+    void ProcessCardClick(Card clickedCard)
     {
         if (!CanFlipCard(clickedCard))
             return;
@@ -249,7 +249,7 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private void EvaluateFlippedCards()
+    void EvaluateFlippedCards()
     {
         if (flippedCards.Count < 2)
             return;
@@ -271,7 +271,7 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private bool CheckForMatch()
+    bool CheckForMatch()
     {
         if (flippedCards.Count < 2)
             return false;
@@ -283,7 +283,7 @@ public class MemoryCardGameManager : MonoBehaviour
         return card1.CardId == card2.CardId;
     }
 
-    private void HandleMatch()
+    void HandleMatch()
     {
         Debug.Log("Match found!");
 
@@ -331,7 +331,7 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log($"Score: {CurrentScore}, Matched Pairs: {MatchedPairs}/{gridManager.TotalPairs}");
     }
 
-    private void HandleMismatch()
+    void HandleMismatch()
     {
         Debug.Log("Mismatch - cards will flip back");
 
@@ -362,7 +362,7 @@ public class MemoryCardGameManager : MonoBehaviour
         matchProcessingCoroutine = StartCoroutine(FlipCardsBackAfterDelay());
     }
 
-    private IEnumerator FlipCardsBackAfterDelay()
+    IEnumerator FlipCardsBackAfterDelay()
     {
         isProcessingMatch = true;
 
@@ -392,7 +392,7 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log("Cards flipped back, ready for next turn");
     }
 
-    private void CheckWinCondition()
+    void CheckWinCondition()
     {
         if (gridManager.IsGridComplete())
         {
@@ -423,7 +423,7 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private void ResetGameState()
+    void ResetGameState()
     {
         CurrentScore = 0;
         CurrentTurns = 0;
@@ -455,7 +455,7 @@ public class MemoryCardGameManager : MonoBehaviour
         }
     }
 
-    private void UpdateUI()
+    void UpdateUI()
     {
         OnScoreChanged?.Invoke(CurrentScore);
         OnTurnsChanged?.Invoke(CurrentTurns);
@@ -521,7 +521,7 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log($"Game loaded: Score {CurrentScore}, Turns {CurrentTurns}");
     }
 
-    private List<CardSaveData> GetCardStatesForSave()
+    List<CardSaveData> GetCardStatesForSave()
     {
         var cardStates = new List<CardSaveData>();
         var allCards = gridManager.GetAllCards();
@@ -540,7 +540,7 @@ public class MemoryCardGameManager : MonoBehaviour
         return cardStates;
     }
 
-    private void RestoreCardStates(List<CardSaveData> cardStates)
+    void RestoreCardStates(List<CardSaveData> cardStates)
     {
         var allCards = gridManager.GetAllCards();
 
@@ -606,7 +606,7 @@ public class MemoryCardGameManager : MonoBehaviour
         return previewDuration;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (gridManager != null)
         {

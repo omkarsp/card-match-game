@@ -4,11 +4,11 @@ using System;
 public class ScoreManager : MonoBehaviour
 {
     [Header("Score Settings")]
-    [SerializeField] private int basePointsPerMatch = 1;
-    [SerializeField] private bool enableComboSystem = true;
-    [SerializeField] private int comboMultiplierThreshold = 3;
-    [SerializeField] private float comboMultiplier = 1.5f;
-    [SerializeField] private int maxComboMultiplier = 3;
+    [SerializeField] int basePointsPerMatch = 1;
+    [SerializeField] bool enableComboSystem = true;
+    [SerializeField] int comboMultiplierThreshold = 3;
+    [SerializeField] float comboMultiplier = 1.5f;
+    [SerializeField] int maxComboMultiplier = 3;
 
     // Current score state
     public int TotalScore { get; private set; }
@@ -21,10 +21,7 @@ public class ScoreManager : MonoBehaviour
     public Action<int> OnComboChanged;
     public Action<float> OnMultiplierChanged;
 
-    private void Awake()
-    {
-        ResetScore();
-    }
+    void Awake() => ResetScore();
 
     public void ResetScore()
     {
@@ -53,10 +50,7 @@ public class ScoreManager : MonoBehaviour
             pointsEarned = Mathf.RoundToInt(basePoints * CurrentMultiplier);
         }
 
-        // Add to total score
         TotalScore += pointsEarned;
-
-        // Notify listeners
         NotifyListeners();
 
         Debug.Log($"Match scored! Base: {basePoints}, Multiplier: {CurrentMultiplier:F1}x, Earned: {pointsEarned}, Total: {TotalScore}");
@@ -66,11 +60,8 @@ public class ScoreManager : MonoBehaviour
 
     public void AddMismatch()
     {
-        if (enableComboSystem)
-        {
-            // Reset combo on mismatch
-            ResetCombo();
-        }
+        // Reset combo on mismatch
+        if (enableComboSystem) ResetCombo(); 
 
         // Notify listeners (score doesn't change but combo might)
         NotifyListeners();
@@ -78,7 +69,7 @@ public class ScoreManager : MonoBehaviour
         Debug.Log($"Mismatch! Combo reset. Current score: {TotalScore}");
     }
 
-    private void UpdateCombo()
+    void UpdateCombo()
     {
         if (!enableComboSystem) return;
 
@@ -100,14 +91,14 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    private void ResetCombo()
+    void ResetCombo()
     {
         ConsecutiveMatches = 0;
         CurrentCombo = 0;
         CurrentMultiplier = 1f;
     }
 
-    private void NotifyListeners()
+    void NotifyListeners()
     {
         OnScoreChanged?.Invoke(TotalScore);
         OnComboChanged?.Invoke(CurrentCombo);
@@ -115,32 +106,22 @@ public class ScoreManager : MonoBehaviour
     }
 
     // Public getters for UI
-    public string GetScoreString()
-    {
-        return TotalScore.ToString();
-    }
+    public string GetScoreString() => TotalScore.ToString();
 
     public string GetComboString()
     {
-        if (!enableComboSystem || CurrentCombo <= 0)
-            return "";
-        
+        if (!enableComboSystem || CurrentCombo <= 0) return "";
         return $"Combo x{CurrentCombo}";
     }
 
     public string GetMultiplierString()
     {
-        if (!enableComboSystem || CurrentMultiplier <= 1f)
-            return "";
-            
+        if (!enableComboSystem || CurrentMultiplier <= 1f) return "";
         return $"{CurrentMultiplier:F1}x";
     }
 
     // Configuration methods
-    public void SetBasePointsPerMatch(int points)
-    {
-        basePointsPerMatch = Mathf.Max(1, points);
-    }
+    public void SetBasePointsPerMatch(int points) => basePointsPerMatch = Mathf.Max(1, points);
 
     public void SetComboSystemEnabled(bool enabled)
     {
@@ -203,7 +184,7 @@ public class ScoreManager : MonoBehaviour
         Debug.Log($"Combo System: {(enableComboSystem ? "Enabled" : "Disabled")}");
     }
 
-    private void OnValidate()
+    void OnValidate()
     {
         // Ensure valid values in inspector
         if (basePointsPerMatch < 1) basePointsPerMatch = 1;
