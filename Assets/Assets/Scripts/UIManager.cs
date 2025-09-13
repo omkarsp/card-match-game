@@ -51,6 +51,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] Slider musicVolumeSlider;
     [SerializeField] Toggle effectsToggle;
     [SerializeField] Slider effectsVolumeSlider;
+    [SerializeField] Sprite musicOn;
+    [SerializeField] Sprite musicOff;
+    [SerializeField] Sprite effectsOn;
+    [SerializeField] Sprite effectsOff;
     
     Difficulty selectedDifficulty = Difficulty.Medium;
 
@@ -220,24 +224,28 @@ public class UIManager : MonoBehaviour
     {
         musicEnabled = isEnabled;
         UpdateMusicSettings();
+        (musicToggle.targetGraphic as Image).sprite = isEnabled ? musicOn : musicOff;
     }
     
     void OnMusicVolumeChanged(float volume)
     {
         musicVolume = volume;
         UpdateMusicSettings();
+        (musicToggle.targetGraphic as Image).sprite = volume > 0 ? musicOn : musicOff;
     }
     
     void OnEffectsToggleChanged(bool isEnabled)
     {
         effectsEnabled = isEnabled;
         UpdateEffectsSettings();
+        (effectsToggle.targetGraphic as Image).sprite = isEnabled ? effectsOn :  effectsOff;
     }
     
     void OnEffectsVolumeChanged(float volume)
     {
         effectsVolume = volume;
         UpdateEffectsSettings();
+        (effectsToggle.targetGraphic as Image).sprite = volume > 0 ? effectsOn : effectsOff;
     }
     
     void UpdateMusicSettings()
