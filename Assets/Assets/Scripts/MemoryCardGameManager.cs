@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class MemoryCardGameManager : MonoBehaviour
 {
@@ -40,26 +41,23 @@ public class MemoryCardGameManager : MonoBehaviour
     Coroutine previewCoroutine;
 
     // Events
-    public System.Action<int> OnScoreChanged;
-    public System.Action<int> OnTurnsChanged;
-    public System.Action<int, int> OnPairsChanged; // matched, total
-    public System.Action OnGameWon;
-    public System.Action OnGameStarted;
-    public System.Action OnPreviewStarted;
-    public System.Action OnPreviewEnded;
+    public Action<int> OnScoreChanged;
+    public Action<int> OnTurnsChanged;
+    public Action<int, int> OnPairsChanged; // matched, total
+    public Action OnGameWon;
+    public Action OnGameStarted;
+    public Action OnPreviewStarted;
+    public Action OnPreviewEnded;
 
     void Awake()
     {
-        if (gridManager == null) gridManager = GetComponent<GridManager>();
-        if (audioManager == null) audioManager = FindObjectOfType<AudioManager>();
-        if (saveLoadManager == null) saveLoadManager = GetComponent<SaveLoadManager>();
-        if (scoreManager == null) scoreManager = GetComponent<ScoreManager>();
+        if (!gridManager) gridManager = GetComponent<GridManager>();
+        if (!audioManager) audioManager = FindObjectOfType<AudioManager>();
+        if (!saveLoadManager) saveLoadManager = GetComponent<SaveLoadManager>();
+        if (!scoreManager) scoreManager = GetComponent<ScoreManager>();
     }
 
-    void Start()
-    {
-        InitializeGame();
-    }
+    void Start() => InitializeGame();
 
     public void InitializeGame()
     {
@@ -73,14 +71,8 @@ public class MemoryCardGameManager : MonoBehaviour
         gridManager.OnCardClicked += HandleCardClick;
 
         // Try to load saved game, otherwise start new game
-        if (saveLoadManager != null && saveLoadManager.HasSavedGame())
-        {
-            LoadGame();
-        }
-        else
-        {
-            StartNewGame(currentRows, currentColumns);
-        }
+        if (saveLoadManager != null && saveLoadManager.HasSavedGame()) LoadGame();
+        else StartNewGame(currentRows, currentColumns);
     }
 
     public void StartNewGame(int rows, int columns)
@@ -227,26 +219,19 @@ public class MemoryCardGameManager : MonoBehaviour
 
     void ProcessCardClick(Card clickedCard)
     {
-        if (!CanFlipCard(clickedCard))
-            return;
+        if (!CanFlipCard(clickedCard)) return;
 
         // Flip the card
         clickedCard.FlipToFront();
         flippedCards.Add(clickedCard);
 
         // Play flip sound
-        if (audioManager != null)
-        {
-            audioManager.PlayCardFlip();
-        }
+        if (audioManager) audioManager.PlayCardFlip();
 
         Debug.Log($"Card flipped: ID {clickedCard.CardId}, Total flipped: {flippedCards.Count}");
 
         // Check if we have enough cards to evaluate
-        if (flippedCards.Count >= maxFlippedCards)
-        {
-            EvaluateFlippedCards();
-        }
+        if (flippedCards.Count >= maxFlippedCards) EvaluateFlippedCards();
     }
 
     void EvaluateFlippedCards()
@@ -261,20 +246,13 @@ public class MemoryCardGameManager : MonoBehaviour
         // Check if cards match
         bool isMatch = CheckForMatch();
 
-        if (isMatch)
-        {
-            HandleMatch();
-        }
-        else
-        {
-            HandleMismatch();
-        }
+        if (isMatch) HandleMatch();
+        else HandleMismatch();
     }
 
     bool CheckForMatch()
     {
-        if (flippedCards.Count < 2)
-            return false;
+        if (flippedCards.Count < 2) return false;
 
         // For simplicity, check first two cards
         Card card1 = flippedCards[0];
@@ -288,16 +266,10 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log("Match found!");
 
         // Play match sound
-        if (audioManager != null)
-        {
-            audioManager.PlayMatch();
-        }
+        if (audioManager) audioManager.PlayMatch();
 
         // Mark cards as matched
-        foreach (Card card in flippedCards)
-        {
-            card.SetMatched();
-        }
+        foreach (Card card in flippedCards) card.SetMatched();
 
         // Update score through ScoreManager
         if (scoreManager != null)
@@ -320,10 +292,7 @@ public class MemoryCardGameManager : MonoBehaviour
         OnPairsChanged?.Invoke(MatchedPairs, gridManager.TotalPairs);
 
         // Process any queued cards
-        if (allowContinuousFlipping)
-        {
-            ProcessCardQueue();
-        }
+        if (allowContinuousFlipping) ProcessCardQueue();
 
         // Check win condition
         CheckWinCondition();
@@ -336,28 +305,16 @@ public class MemoryCardGameManager : MonoBehaviour
         Debug.Log("Mismatch - cards will flip back");
 
         // Play mismatch sound
-        if (audioManager != null)
-        {
-            audioManager.PlayMismatch();
-        }
+        if (audioManager) audioManager.PlayMismatch();
 
         // Notify score manager of mismatch (for combo reset)
-        if (scoreManager != null)
-        {
-            scoreManager.AddMismatch();
-        }
+        if (scoreManager) scoreManager.AddMismatch();
 
         // Notify score manager of mismatch (for combo reset)
-        if (scoreManager != null)
-        {
-            scoreManager.AddMismatch();
-        }
+        if (scoreManager) scoreManager.AddMismatch();
 
         // Start coroutine to flip cards back after delay
-        if (matchProcessingCoroutine != null)
-        {
-            StopCoroutine(matchProcessingCoroutine);
-        }
+        if (matchProcessingCoroutine != null) StopCoroutine(matchProcessingCoroutine);
 
         matchProcessingCoroutine = StartCoroutine(FlipCardsBackAfterDelay());
     }
@@ -375,19 +332,13 @@ public class MemoryCardGameManager : MonoBehaviour
 
         foreach (Card card in cardsToFlipBack)
         {
-            if (card != null && card.CurrentState == CardState.FaceUp)
-            {
-                card.FlipToBack();
-            }
+            if (card && card.CurrentState == CardState.FaceUp) card.FlipToBack();
         }
 
         isProcessingMatch = false;
 
         // Process any queued cards after mismatch processing
-        if (allowContinuousFlipping)
-        {
-            ProcessCardQueue();
-        }
+        if (allowContinuousFlipping) ProcessCardQueue();
 
         Debug.Log("Cards flipped back, ready for next turn");
     }
@@ -400,26 +351,17 @@ public class MemoryCardGameManager : MonoBehaviour
             IsGameActive = false;
 
             // Play game over sound
-            if (audioManager != null)
-            {
-                audioManager.PlayGameOver();
-            }
+            if (audioManager) audioManager.PlayGameOver();
 
             OnGameWon?.Invoke();
 
             // Auto-save completion
-            if (saveLoadManager != null)
-            {
-                saveLoadManager.ClearSavedGame(); // Clear since game is complete
-            }
+            if (saveLoadManager) saveLoadManager.ClearSavedGame(); // Clear since game is complete
         }
         else
         {
             // Auto-save progress
-            if (saveLoadManager != null)
-            {
-                SaveGame();
-            }
+            if (saveLoadManager) SaveGame();
         }
     }
 
@@ -432,10 +374,7 @@ public class MemoryCardGameManager : MonoBehaviour
         isInPreviewPhase = false;
 
         // Reset score manager
-        if (scoreManager != null)
-        {
-            scoreManager.ResetScore();
-        }
+        if (scoreManager) scoreManager.ResetScore();
 
         flippedCards.Clear();
         cardClickQueue.Clear();
@@ -470,8 +409,7 @@ public class MemoryCardGameManager : MonoBehaviour
 
     public void SaveGame()
     {
-        if (saveLoadManager == null || !IsGameActive)
-            return;
+        if (!saveLoadManager || !IsGameActive) return;
 
         var gameData = new GameSaveData
         {
@@ -489,12 +427,10 @@ public class MemoryCardGameManager : MonoBehaviour
 
     public void LoadGame()
     {
-        if (saveLoadManager == null || !saveLoadManager.HasSavedGame())
-            return;
+        if (!saveLoadManager || !saveLoadManager.HasSavedGame()) return;
 
         var gameData = saveLoadManager.LoadGame();
-        if (gameData == null)
-            return;
+        if (gameData == null) return;
 
         Debug.Log("Loading saved game");
 
@@ -509,10 +445,7 @@ public class MemoryCardGameManager : MonoBehaviour
         gridManager.GenerateGrid(currentRows, currentColumns);
 
         // Restore card states if available
-        if (gameData.cardStates != null && gameData.cardStates.Count > 0)
-        {
-            RestoreCardStates(gameData.cardStates);
-        }
+        if (gameData.cardStates != null && gameData.cardStates.Count > 0) RestoreCardStates(gameData.cardStates);
 
         IsGameActive = true;
         UpdateUI();
@@ -574,26 +507,14 @@ public class MemoryCardGameManager : MonoBehaviour
         currentColumns = columns;
     }
 
-    public string GetCurrentGridSize()
-    {
-        return $"{currentRows}x{currentColumns}";
-    }
+    public string GetCurrentGridSize() => $"{currentRows}x{currentColumns}";
 
     // Public getters for UI
-    public int GetTotalPairs()
-    {
-        return gridManager?.TotalPairs ?? 0;
-    }
+    public int GetTotalPairs() => gridManager?.TotalPairs ?? 0;
 
-    public bool HasActiveGame()
-    {
-        return IsGameActive;
-    }
+    public bool HasActiveGame() => IsGameActive;
 
-    public bool IsInPreviewPhase()
-    {
-        return isInPreviewPhase;
-    }
+    public bool IsInPreviewPhase() => isInPreviewPhase;
 
     public void SetPreviewSettings(bool enabled, float duration)
     {
@@ -601,16 +522,10 @@ public class MemoryCardGameManager : MonoBehaviour
         previewDuration = Mathf.Max(0.5f, duration);
     }
 
-    public float GetPreviewDuration()
-    {
-        return previewDuration;
-    }
+    public float GetPreviewDuration() => previewDuration;
 
     void OnDestroy()
     {
-        if (gridManager != null)
-        {
-            gridManager.OnCardClicked -= HandleCardClick;
-        }
+        if (gridManager != null) gridManager.OnCardClicked -= HandleCardClick;
     }
 }

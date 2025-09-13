@@ -51,26 +51,14 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        ApplyPlatformOptimizations();
-    }
+    void Start() => ApplyPlatformOptimizations();
 
     void InitializePlatform()
     {
         // Detect current platform
-        if (autoDetectPlatform && forcePlatform == Platform.Unknown)
-        {
-            DetectPlatform();
-        }
-        else if (forcePlatform != Platform.Unknown)
-        {
-            CurrentPlatform = forcePlatform;
-        }
-        else
-        {
-            DetectPlatform();
-        }
+        if (autoDetectPlatform && forcePlatform == Platform.Unknown) DetectPlatform();
+        else if (forcePlatform != Platform.Unknown) CurrentPlatform = forcePlatform;
+        else DetectPlatform();
 
         // Setup input capabilities
         SetupInputCapabilities();
@@ -144,17 +132,11 @@ public class PlatformManager : MonoBehaviour
         switch (CurrentPlatform)
         {
             case Platform.Mobile:
-                if (enableMobileOptimizations)
-                {
-                    ApplyMobileOptimizations(optimizer);
-                }
+                if (enableMobileOptimizations) ApplyMobileOptimizations(optimizer);
                 break;
 
             case Platform.Desktop:
-                if (enableDesktopFeatures)
-                {
-                    ApplyDesktopOptimizations(optimizer);
-                }
+                if (enableDesktopFeatures) ApplyDesktopOptimizations(optimizer);
                 break;
 
             case Platform.WebGL:
@@ -166,10 +148,7 @@ public class PlatformManager : MonoBehaviour
     void ApplyMobileOptimizations(PerformanceOptimizer optimizer)
     {
         // Mobile-specific optimizations
-        if (optimizer != null)
-        {
-            optimizer.OptimizeForMobile();
-        }
+        if (optimizer) optimizer.OptimizeForMobile();
 
         // Reduce screen resolution for better performance
         Screen.SetResolution(Screen.width / 2, Screen.height / 2, true);
@@ -187,10 +166,7 @@ public class PlatformManager : MonoBehaviour
     void ApplyDesktopOptimizations(PerformanceOptimizer optimizer)
     {
         // Desktop-specific optimizations
-        if (optimizer != null)
-        {
-            optimizer.OptimizeForDesktop();
-        }
+        if (optimizer) optimizer.OptimizeForDesktop();
 
         // Higher quality settings for desktop
         QualitySettings.particleRaycastBudget = 256;
@@ -205,10 +181,7 @@ public class PlatformManager : MonoBehaviour
     void ApplyWebGLOptimizations(PerformanceOptimizer optimizer)
     {
         // WebGL-specific optimizations
-        if (optimizer != null)
-        {
-            optimizer.SetTargetFrameRate(30f); // Conservative frame rate for web
-        }
+        if (optimizer) optimizer.SetTargetFrameRate(30f); // Conservative frame rate for web
 
         // Reduce quality for web performance
         QualitySettings.particleRaycastBudget = 32;

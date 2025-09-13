@@ -41,10 +41,7 @@ public class SaveLoadManager : MonoBehaviour
     void Awake()
     {
         // Ensure we have a save data instance
-        if (currentSaveData == null)
-        {
-            currentSaveData = new GameSaveData();
-        }
+        if (currentSaveData == null) currentSaveData = new GameSaveData();
     }
 
     public void SaveGame(GameSaveData gameData)
@@ -104,10 +101,7 @@ public class SaveLoadManager : MonoBehaviour
 
             currentSaveData = loadedData;
 
-            if (debugMode)
-            {
-                Debug.Log($"Game loaded successfully:\n{jsonData}");
-            }
+            if (debugMode) Debug.Log($"Game loaded successfully:\n{jsonData}");
 
             return loadedData;
         }
@@ -149,8 +143,7 @@ public class SaveLoadManager : MonoBehaviour
 
     public string GetSaveTimestamp()
     {
-        if (currentSaveData == null || string.IsNullOrEmpty(currentSaveData.saveTimestamp))
-            return "No save data";
+        if (currentSaveData == null || string.IsNullOrEmpty(currentSaveData.saveTimestamp)) return "No save data";
 
         try
         {
@@ -166,24 +159,19 @@ public class SaveLoadManager : MonoBehaviour
 
     public bool ValidateSaveData(GameSaveData data)
     {
-        if (data == null)
-            return false;
+        if (data == null) return false;
 
         // Basic validation
-        if (data.score < 0 || data.turns < 0 || data.matchedPairs < 0)
-            return false;
+        if (data.score < 0 || data.turns < 0 || data.matchedPairs < 0) return false;
 
-        if (data.gridRows <= 0 || data.gridColumns <= 0)
-            return false;
+        if (data.gridRows <= 0 || data.gridColumns <= 0) return false;
 
         // Validate grid size is even for pairing
-        if ((data.gridRows * data.gridColumns) % 2 != 0)
-            return false;
+        if ((data.gridRows * data.gridColumns) % 2 != 0) return false;
 
         // Validate score doesn't exceed possible pairs
         int totalPairs = (data.gridRows * data.gridColumns) / 2;
-        if (data.score > totalPairs || data.matchedPairs > totalPairs)
-            return false;
+        if (data.score > totalPairs || data.matchedPairs > totalPairs) return false;
 
         return true;
     }
@@ -212,15 +200,9 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     // Auto-save functionality
-    public void EnableAutoSave(bool enable)
-    {
-        autoSave = enable;
-    }
+    public void EnableAutoSave(bool enable) => autoSave = enable;
 
-    public bool IsAutoSaveEnabled()
-    {
-        return autoSave;
-    }
+    public bool IsAutoSaveEnabled() => autoSave;
 
     // For testing purposes
     public void CreateTestSave()
@@ -257,10 +239,7 @@ public class SaveLoadManager : MonoBehaviour
         {
             // Auto-save when application is paused (mobile)
             var gameManager = FindObjectOfType<MemoryCardGameManager>();
-            if (gameManager != null && gameManager.HasActiveGame())
-            {
-                gameManager.SaveGame();
-            }
+            if (gameManager && gameManager.HasActiveGame()) gameManager.SaveGame();
         }
     }
 
@@ -270,10 +249,7 @@ public class SaveLoadManager : MonoBehaviour
         {
             // Auto-save when application loses focus
             var gameManager = FindObjectOfType<MemoryCardGameManager>();
-            if (gameManager != null && gameManager.HasActiveGame())
-            {
-                gameManager.SaveGame();
-            }
+            if (gameManager && gameManager.HasActiveGame()) gameManager.SaveGame();
         }
     }
 
@@ -283,10 +259,7 @@ public class SaveLoadManager : MonoBehaviour
         {
             // Final auto-save on destroy
             var gameManager = FindObjectOfType<MemoryCardGameManager>();
-            if (gameManager != null && gameManager.HasActiveGame())
-            {
-                gameManager.SaveGame();
-            }
+            if (gameManager && gameManager.HasActiveGame()) gameManager.SaveGame();
         }
     }
 }

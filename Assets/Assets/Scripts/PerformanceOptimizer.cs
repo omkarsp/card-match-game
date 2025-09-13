@@ -67,15 +67,9 @@ public class PerformanceOptimizer : MonoBehaviour
 
     void Update()
     {
-        if (enablePerformanceMonitoring)
-        {
-            UpdatePerformanceMetrics();
-        }
+        if (enablePerformanceMonitoring) UpdatePerformanceMetrics();
 
-        if (enableAutomaticGC)
-        {
-            HandleAutomaticGC();
-        }
+        if (enableAutomaticGC) HandleAutomaticGC();
     }
 
     void InitializeOptimizations()
@@ -92,10 +86,7 @@ public class PerformanceOptimizer : MonoBehaviour
             Physics2D.autoSimulation = true;
 
             // Optimize rendering
-            if (enableObjectCulling)
-            {
-                SetupObjectCulling();
-            }
+            if (enableObjectCulling) SetupObjectCulling();
 
             Debug.Log("Performance optimizations initialized");
         }
@@ -361,31 +352,19 @@ public class PerformanceOptimizer : MonoBehaviour
 
     void OnApplicationPause(bool pauseStatus)
     {
-        if (pauseStatus && enableOptimizations)
-        {
-            // Force GC when app is paused
-            ForceGarbageCollection();
-        }
+        // Force GC when app is paused
+        if (pauseStatus && enableOptimizations) ForceGarbageCollection();
     }
 
     void OnApplicationFocus(bool hasFocus)
     {
-        if (!hasFocus && enableOptimizations)
-        {
-            // Reduce performance when not focused
-            Application.targetFrameRate = 15;
-        }
-        else if (hasFocus)
-        {
-            // Restore normal performance
-            Application.targetFrameRate = Mathf.RoundToInt(targetFrameRate);
-        }
+        // Reduce performance when not focused
+        if (!hasFocus && enableOptimizations) Application.targetFrameRate = 15;
+        // Restore normal performance
+        else if (hasFocus) Application.targetFrameRate = Mathf.RoundToInt(targetFrameRate);
     }
 
-    void OnDestroy()
-    {
-        ClearAllPools();
-    }
+    void OnDestroy() => ClearAllPools();
 
     void OnValidate()
     {
