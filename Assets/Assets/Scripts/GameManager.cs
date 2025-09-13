@@ -5,8 +5,7 @@ public enum GameState
     MainMenu,
     Gameplay,
     GameOver,
-    DifficultyComplete,
-    GamePaused
+    DifficultyComplete
 }
 
 public class GameManager : MonoBehaviour
@@ -54,10 +53,6 @@ public class GameManager : MonoBehaviour
 
     public void CompleteDifficulty() => ChangeGameState(GameState.DifficultyComplete);
 
-    public void PauseGame() => ChangeGameState(GameState.GamePaused);
-
-    public void ResumeGame() => ChangeGameState(GameState.Gameplay);
-
     (int rows, int columns) GetGridSizeForDifficulty(Difficulty difficulty)
     {
         return difficulty switch
@@ -99,9 +94,6 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.DifficultyComplete:
                 UIManager.Instance.ShowDifficultyCompleteUI();
-                break;
-            case GameState.GamePaused:
-                UIManager.Instance.ShowPauseUI();
                 break;
             default:
                 Debug.LogWarning($"Unhandled game state: {newState}");

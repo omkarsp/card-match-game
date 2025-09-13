@@ -41,6 +41,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] Toggle mediumToggle;
     [SerializeField] Toggle hardToggle;
     [SerializeField] Toggle veryHardToggle;
+
+    [SerializeField] private Sprite difficultyOn;
+    [SerializeField] private Sprite difficultyOff;
     
     [Header("Settings")]
     [SerializeField] GameObject settingsPanel;
@@ -103,12 +106,6 @@ public class UIManager : MonoBehaviour
         effectsVolumeSlider.onValueChanged.AddListener(OnEffectsVolumeChanged);
         
         // Setup difficulty toggles
-        veryEasyToggle.onValueChanged.AddListener((isOn) => { if (isOn) OnDifficultyChanged(Difficulty.VeryEasy); });
-        easyToggle.onValueChanged.AddListener((isOn) => { if (isOn) OnDifficultyChanged(Difficulty.Easy); });
-        mediumToggle.onValueChanged.AddListener((isOn) => { if (isOn) OnDifficultyChanged(Difficulty.Medium); });
-        hardToggle.onValueChanged.AddListener((isOn) => { if (isOn) OnDifficultyChanged(Difficulty.Hard); });
-        veryHardToggle.onValueChanged.AddListener((isOn) => { if (isOn) OnDifficultyChanged(Difficulty.VeryHard); });
-        
         difficultyToggleMap = new Dictionary<Difficulty, Toggle>
         {
             { Difficulty.VeryEasy, veryEasyToggle },
@@ -117,9 +114,17 @@ public class UIManager : MonoBehaviour
             { Difficulty.Hard, hardToggle },
             { Difficulty.VeryHard, veryHardToggle }
         };
-
+        
+        veryEasyToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.VeryEasy, isOn); });
+        easyToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.Easy, isOn); });
+        mediumToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.Medium, isOn); });
+        hardToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.Hard, isOn); });
+        veryHardToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.VeryHard, isOn); });
+        
         // Set default difficulty
         mediumToggle.isOn = true;
+        
+        OnDifficultyChanged(Difficulty.Medium, true);
         
         // Initialize audio settings
         InitializeAudioSettings();
@@ -169,18 +174,8 @@ public class UIManager : MonoBehaviour
         levelCompleteText.text = $"{selectedDifficulty} Complete!";
     }
 
-    public void ShowGameOverUI()
-    {
-        // For now, treat game over same as difficulty complete
-        ShowDifficultyCompleteUI();
-    }
+    public void ShowGameOverUI() => ShowDifficultyCompleteUI();
 
-    public void ShowPauseUI()
-    {
-        // Implementation for pause UI if needed
-        Debug.Log("Game paused");
-    }
-    
     void OnPlayButtonClicked()
     {
         Debug.Log($"Starting game with difficulty: {selectedDifficulty}");
@@ -191,10 +186,11 @@ public class UIManager : MonoBehaviour
 
     void OnCloseSettingsClicked() => settingsPanel.SetActive(false);
 
-    void OnDifficultyChanged(Difficulty difficulty)
+    void OnDifficultyChanged(Difficulty difficulty, bool isOn)
     {
         selectedDifficulty = difficulty;
         Debug.Log($"Difficulty changed to: {difficulty}");
+        (difficultyToggleMap[difficulty].targetGraphic as Image).sprite = isOn ? difficultyOn : difficultyOff;
     }
     
     public Difficulty GetSelectedDifficulty() => selectedDifficulty;
