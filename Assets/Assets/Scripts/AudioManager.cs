@@ -34,7 +34,7 @@ public class AudioManager : MonoBehaviour
     void Awake()
     {
         // Singleton setup
-        if (Instance == null)
+        if (!Instance)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -72,14 +72,14 @@ public class AudioManager : MonoBehaviour
         }
 
         // Setup main effects source if not assigned
-        if (effectsSource == null)
+        if (!effectsSource)
         {
             effectsSource = gameObject.AddComponent<AudioSource>();
             effectsSource.playOnAwake = false;
         }
 
         // Setup music source if not assigned
-        if (musicSource == null)
+        if (!musicSource)
         {
             GameObject musicSourceObj = new GameObject("MusicSource");
             musicSourceObj.transform.SetParent(transform);
@@ -106,7 +106,7 @@ public class AudioManager : MonoBehaviour
         
         // Then try to get current settings from UIManager if available
         UIManager uiManager = FindObjectOfType<UIManager>();
-        if (uiManager != null)
+        if (uiManager)
         {
             effectsEnabled = uiManager.AreEffectsEnabled();
             effectsVolume = uiManager.GetEffectsVolume();
@@ -121,25 +121,13 @@ public class AudioManager : MonoBehaviour
 
     #region Required Sound Effects
 
-    public void PlayCardFlip()
-    {
-        PlaySoundEffect(cardFlipSound);
-    }
+    public void PlayCardFlip() => PlaySoundEffect(cardFlipSound);
 
-    public void PlayMatch()
-    {
-        PlaySoundEffect(matchSound);
-    }
+    public void PlayMatch() => PlaySoundEffect(matchSound);
 
-    public void PlayMismatch()
-    {
-        PlaySoundEffect(mismatchSound);
-    }
+    public void PlayMismatch() => PlaySoundEffect(mismatchSound);
 
-    public void PlayGameOver()
-    {
-        PlaySoundEffect(gameOverSound);
-    }
+    public void PlayGameOver() => PlaySoundEffect(gameOverSound);
 
     #endregion
 
@@ -147,13 +135,12 @@ public class AudioManager : MonoBehaviour
 
     void PlaySoundEffect(AudioClip clip)
     {
-        if (!effectsEnabled || clip == null)
-            return;
+        if (!effectsEnabled || !clip) return;
 
         // Try to get pooled audio source
         AudioSource source = GetPooledAudioSource();
         
-        if (source != null)
+        if (source)
         {
             source.clip = clip;
             source.volume = effectsVolume * masterVolume;
@@ -172,28 +159,23 @@ public class AudioManager : MonoBehaviour
 
     AudioSource GetPooledAudioSource()
     {
-        if (audioSourcePool.Count > 0)
-        {
-            AudioSource source = audioSourcePool.Dequeue();
-            activeAudioSources.Add(source);
-            return source;
-        }
-
-        return null;
+        if (audioSourcePool.Count <= 0) return null;
+        AudioSource source = audioSourcePool.Dequeue();
+        activeAudioSources.Add(source);
+        return source;
     }
 
     IEnumerator ReturnAudioSourceToPool(AudioSource source, float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        if (!source) yield break;
         
-        if (source != null)
-        {
-            source.Stop();
-            source.clip = null;
+        source.Stop();
+        source.clip = null;
             
-            activeAudioSources.Remove(source);
-            audioSourcePool.Enqueue(source);
-        }
+        activeAudioSources.Remove(source);
+        audioSourcePool.Enqueue(source);
     }
 
     #endregion
@@ -207,14 +189,11 @@ public class AudioManager : MonoBehaviour
         
         foreach (AudioSource source in activeAudioSources)
         {
-            if (source != null)
-            {
-                source.volume = effectsVolume * masterVolume;
-            }
+            if (source) source.volume = effectsVolume * masterVolume;
         }
 
         // Update music
-        if (musicSource != null)
+        if (musicSource)
         {
             musicSource.volume = musicVolume * masterVolume;
             musicSource.mute = !musicEnabled;
@@ -259,38 +238,26 @@ public class AudioManager : MonoBehaviour
 
     public void PlayBackgroundMusic(AudioClip musicClip)
     {
-        if (musicSource != null && musicClip != null)
+        if (musicSource && musicClip)
         {
             musicSource.clip = musicClip;
-            if (musicEnabled)
-            {
-                musicSource.Play();
-            }
+            if (musicEnabled) musicSource.Play();
         }
     }
 
     public void StopBackgroundMusic()
     {
-        if (musicSource != null)
-        {
-            musicSource.Stop();
-        }
+        if (musicSource) musicSource.Stop();
     }
 
     public void PauseBackgroundMusic()
     {
-        if (musicSource != null)
-        {
-            musicSource.Pause();
-        }
+        if (musicSource) musicSource.Pause();
     }
 
     public void ResumeBackgroundMusic()
     {
-        if (musicSource != null && musicEnabled)
-        {
-            musicSource.UnPause();
-        }
+        if (musicSource && musicEnabled) musicSource.UnPause();
     }
 
     #endregion
