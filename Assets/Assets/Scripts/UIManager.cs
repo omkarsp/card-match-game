@@ -44,6 +44,12 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private Sprite difficultyOn;
     [SerializeField] private Sprite difficultyOff;
+
+    Dictionary<Difficulty, string> difficultyTextMap = new();
+    Dictionary<Difficulty, Toggle> difficultyToggleMap = new();
+    Dictionary<Difficulty, Difficulty> nextDifficultyMap = new();
+    Difficulty selectedDifficulty = Difficulty.Medium;
+
     
     [Header("Settings")]
     [SerializeField] GameObject settingsPanel;
@@ -59,9 +65,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] Sprite effectsOn;
     [SerializeField] Sprite effectsOff;
     
-    Difficulty selectedDifficulty = Difficulty.Medium;
-
-    Dictionary<Difficulty, Toggle> difficultyToggleMap = new();
     
     // Audio settings
     bool musicEnabled = true;
@@ -104,6 +107,15 @@ public class UIManager : MonoBehaviour
         musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
         effectsToggle.onValueChanged.AddListener(OnEffectsToggleChanged);
         effectsVolumeSlider.onValueChanged.AddListener(OnEffectsVolumeChanged);
+
+        difficultyTextMap = new()
+        {
+            { Difficulty.VeryEasy, "VERY EASY"},
+            { Difficulty.Easy, "EASY" },
+            { Difficulty.Medium, "MEDIUM" },
+            { Difficulty.Hard, "HARD" },
+            { Difficulty.VeryHard, "VERY HARD" }
+        };
         
         // Setup difficulty toggles
         difficultyToggleMap = new Dictionary<Difficulty, Toggle>
@@ -113,6 +125,15 @@ public class UIManager : MonoBehaviour
             { Difficulty.Medium, mediumToggle },
             { Difficulty.Hard, hardToggle },
             { Difficulty.VeryHard, veryHardToggle }
+        };
+
+        nextDifficultyMap = new()
+        {
+            { Difficulty.VeryEasy, Difficulty.Easy },
+            { Difficulty.Easy, Difficulty.Medium },
+            { Difficulty.Medium, Difficulty.Hard },
+            { Difficulty.Hard, Difficulty.VeryHard },
+            { Difficulty.VeryHard, Difficulty.VeryHard }
         };
         
         veryEasyToggle.onValueChanged.AddListener((isOn) => { OnDifficultyChanged(Difficulty.VeryEasy, isOn); });
@@ -124,8 +145,6 @@ public class UIManager : MonoBehaviour
         // Set default difficulty
         mediumToggle.isOn = true;
         
-        OnDifficultyChanged(Difficulty.Medium, true);
-        
         // Initialize audio settings
         InitializeAudioSettings();
         
@@ -136,8 +155,11 @@ public class UIManager : MonoBehaviour
     public void ShowMainMenu()
     {
         mainMenuPanel.SetActive(true);
+        gameplayPanel?.SetActive(false);
         settingsPanel.SetActive(false);
         levelCompletePanel?.SetActive(false);
+        
+        difficultyToggleMap[selectedDifficulty].isOn = true;
     }
     
     public void HideMainMenu() => mainMenuPanel.SetActive(false);
@@ -157,12 +179,12 @@ public class UIManager : MonoBehaviour
     
     void InitializeGameplayUI()
     {
-        if (difficultyText) difficultyText.text = $"Difficulty: {selectedDifficulty}";
+        if (difficultyText) difficultyText.text = $"Difficulty: {difficultyTextMap[selectedDifficulty]}";
         
         UpdateScoreUI(0);
         UpdateTurnsUI(0);
         
-        Debug.Log($"Gameplay UI initialized - Difficulty: {selectedDifficulty}");
+        Debug.Log($"Gameplay UI initialized - Difficulty: {difficultyTextMap[selectedDifficulty]}");
     }
 
     public void ShowDifficultyCompleteUI()
@@ -189,7 +211,7 @@ public class UIManager : MonoBehaviour
     void OnDifficultyChanged(Difficulty difficulty, bool isOn)
     {
         selectedDifficulty = difficulty;
-        Debug.Log($"Difficulty changed to: {difficulty}");
+        Debug.Log(isOn ? $"Difficulty changed to: {difficulty}" : $"Difficulty changed from: {difficulty}");
         (difficultyToggleMap[difficulty].targetGraphic as Image).sprite = isOn ? difficultyOn : difficultyOff;
     }
     
@@ -301,14 +323,15 @@ public class UIManager : MonoBehaviour
     void OnContinueButtonClicked()
     {
         // Progress to next difficulty
-        Difficulty nextDifficulty = GetNextDifficulty(selectedDifficulty);
+        Difficulty nextDifficulty = nextDifficultyMap[selectedDifficulty];
         
         if (nextDifficulty != selectedDifficulty)
         {
             // Move to next difficulty
             selectedDifficulty = nextDifficulty;
-            UpdateDifficultyToggle();
             levelCompletePanel?.SetActive(false);
+            
+            // Show gameplay UI and start new game
             GameManager.Instance.StartGameWithDifficulty(selectedDifficulty);
         }
         else
@@ -322,19 +345,6 @@ public class UIManager : MonoBehaviour
             var buttonText = continueButton?.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             if (buttonText) buttonText.text = "Play Again";
         }
-    }
-
-    Difficulty GetNextDifficulty(Difficulty current)
-    {
-        return current switch
-        {
-            Difficulty.VeryEasy => Difficulty.Easy,
-            Difficulty.Easy => Difficulty.Medium,
-            Difficulty.Medium => Difficulty.Hard,
-            Difficulty.Hard => Difficulty.VeryHard,
-            Difficulty.VeryHard => Difficulty.VeryHard, // Stay at max
-            _ => Difficulty.VeryEasy
-        };
     }
 
     void UpdateDifficultyToggle()
@@ -376,12 +386,14 @@ public class UIManager : MonoBehaviour
     void UpdateScoreUI(int score) => scoreText.text = $"Score: {score}";
 
     void UpdateTurnsUI(int turns) => turnsText.text = $"Turns: {turns}";
+    
+    void UpdateDifficultyText(Difficulty difficulty) => difficultyText.text = $"Difficulty: {difficultyTextMap[difficulty]}";
 
     void OnGameWon() => GameManager.Instance.CompleteDifficulty();
 
     void OnGameStarted()
     {
-        if (difficultyText) difficultyText.text = $"Difficulty: {selectedDifficulty}";
+        if (difficultyText) difficultyText.text = $"Difficulty: {difficultyTextMap[selectedDifficulty]}";
         UpdateScoreUI(0);
         UpdateTurnsUI(0);
     }
@@ -394,7 +406,7 @@ public class UIManager : MonoBehaviour
     void OnPreviewEnded()
     {
         // Restore normal difficulty display
-        if (difficultyText) difficultyText.text = $"Difficulty: {selectedDifficulty}";
+        if (difficultyText) difficultyText.text = $"Difficulty: {difficultyTextMap[selectedDifficulty]}";
     }
 
     // Public methods to get current audio settings
